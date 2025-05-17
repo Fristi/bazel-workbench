@@ -1,0 +1,8 @@
+.scala-build
+.metals
+.vscode
+bazel-bazel-test
+bazel-bin
+bazel-out
+bazel-testlogs
+MODULE.bazel.lock

@@ -1,0 +1,4 @@
+alias(
+    name = "backend_main",
+    actual = "//backend:main",
+)
