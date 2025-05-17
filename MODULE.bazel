@@ -1,5 +1,16 @@
 bazel_dep(name = "rules_scala", version = "7.0.0")
 bazel_dep(name = "rules_jvm_external", version = "6.7")
+bazel_dep(name = "rules_rust", version = "0.61.0")
+
+
+## Rust
+rust = use_extension("@rules_rust//rust:extensions.bzl", "rust")
+rust.toolchain(
+    edition = "2024",
+    versions = [ "1.85.0" ],
+)
+
+## Scala
 
 scala_deps = use_extension(
     "@rules_scala//scala/extensions:deps.bzl",

@@ -1,6 +1,8 @@
 .scala-build
 .metals
 .vscode
+.ijwb
+.DS_Store
 bazel-bazel-test
 bazel-bin
 bazel-out
