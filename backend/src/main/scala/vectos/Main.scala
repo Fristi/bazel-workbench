@@ -3,7 +3,9 @@ package vectos
 import zio._
 
 object Main extends ZIOAppDefault {
-  def run = for {
+  def program = for {
     _ <- Console.printLine("Hello world from ZIO!")
   } yield ()
+
+  def run = program
 }

@@ -1,24 +1,19 @@
+bazel_dep(name = "aspect_bazel_lib", version = "2.16.0")
+bazel_dep(name = "rules_oci", version = "2.2.6")
 bazel_dep(name = "rules_scala", version = "7.0.0")
 bazel_dep(name = "rules_jvm_external", version = "6.7")
 bazel_dep(name = "rules_rust", version = "0.61.0")
-bazel_dep(name = "aspect_bazel_lib", version = "2.16.0")
+
 
 ## OCI images
 
-bazel_dep(name = "rules_oci", version = "2.2.6")
-# For testing, we also recommend https://registry.bazel.build/modules/container_structure_test
-
 oci = use_extension("@rules_oci//oci:extensions.bzl", "oci")
-
-# Declare external images you need to pull, for example:
 oci.pull(
     name = "eclipse_temurin_jre_21",
     image = "docker.io/library/eclipse-temurin",
     tag = "21-jre-alpine-3.21",
     platforms = ["linux/amd64", "linux/arm64/v8"],
 )
-
-# For each oci.pull call, repeat the "name" here to expose them as dependencies.
 use_repo(oci, "eclipse_temurin_jre_21","eclipse_temurin_jre_21_linux_amd64", "eclipse_temurin_jre_21_linux_arm64_v8")
 
 ## Rust
@@ -38,7 +33,7 @@ scala_deps.settings(
     fetch_sources = True,
 )
 scala_deps.scala()
-
+scala_deps.junit()
 
 scala_config = use_extension(
     "@rules_scala//scala/extensions:config.bzl",
@@ -52,7 +47,8 @@ maven = use_extension("@rules_jvm_external//:extensions.bzl", "maven")
 
 maven.install(
     artifacts = [
-        "dev.zio:zio_3:2.1.18"
+        "dev.zio:zio_3:2.1.18",
+        "dev.zio:zio-test-junit_3:2.1.18"
     ],
     repositories = [
         "https://repo1.maven.org/maven2",

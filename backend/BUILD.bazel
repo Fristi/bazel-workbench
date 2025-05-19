@@ -1,4 +1,4 @@
-load("@rules_scala//scala:scala.bzl", "scala_binary")
+load("@rules_scala//scala:scala.bzl", "scala_binary", "scala_junit_test")
 load("@rules_jvm_external//:defs.bzl", "artifact")
 load("@aspect_bazel_lib//lib:tar.bzl", "tar")
 load("@rules_oci//oci:defs.bzl", "oci_image", "oci_load")
@@ -13,6 +13,17 @@ scala_binary(
     ],
     visibility = ["//visibility:public"]
 )
+### Testing
+
+scala_junit_test(
+    name = "test",
+    srcs = glob(["src/test/scala/**/*.scala"]),
+    deps = [":api", artifact("dev.zio:zio-test-junit_3")],
+    suffixes = ["Test", "Spec"],
+    visibility = ["//visibility:public"]
+)
+
+### Packaging
 
 tar(
     name = "layer",
