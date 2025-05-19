@@ -1,13 +1,34 @@
 load("@rules_scala//scala:scala.bzl", "scala_binary")
 load("@rules_jvm_external//:defs.bzl", "artifact")
+load("@aspect_bazel_lib//lib:tar.bzl", "tar")
+load("@rules_oci//oci:defs.bzl", "oci_image", "oci_load")
 
 
 scala_binary(
-    name = "main",
+    name = "api",
     srcs = glob(["src/main/scala/**/*.scala"]),
     main_class = "vectos.Main",
     deps = [
         artifact("dev.zio:zio_3")
     ],
+    visibility = ["//visibility:public"]
+)
+
+tar(
+    name = "layer",
+    srcs = [":api_deploy.jar"]
+)
+
+oci_image(
+    name = "image",
+    base = "@eclipse_temurin_jre_21",
+    entrypoint = ["java", "-jar", "backend/api_deploy.jar"],
+    tars = [":layer"],
+)
+
+oci_load(
+    name = "load_image",
+    image = ":image",
+    repo_tags = ["bazel-api:latest"],
     visibility = ["//visibility:public"]
 )
