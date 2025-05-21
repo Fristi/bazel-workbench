@@ -1,9 +1,9 @@
 package vectos
 
-import zio._
+import zio.*
 
 object Main extends ZIOAppDefault {
-  def program = for {
+  def program: Task[Unit] = for {
     _ <- Console.printLine("Hello world from ZIO!")
   } yield ()
 

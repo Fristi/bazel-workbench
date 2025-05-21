@@ -1,8 +1,11 @@
 bazel_dep(name = "aspect_bazel_lib", version = "2.16.0")
+bazel_dep(name = "platforms", version = "0.0.11")
+bazel_dep(name = "rules_pkg", version = "1.1.0")
 bazel_dep(name = "rules_oci", version = "2.2.6")
 bazel_dep(name = "rules_scala", version = "7.0.0")
 bazel_dep(name = "rules_jvm_external", version = "6.7")
 bazel_dep(name = "rules_rust", version = "0.61.0")
+bazel_dep(name = "toolchains_musl", version = "0.1.20", dev_dependency = True)
 
 
 ## OCI images
@@ -14,13 +17,118 @@ oci.pull(
     tag = "21-jre-alpine-3.21",
     platforms = ["linux/amd64", "linux/arm64/v8"],
 )
-use_repo(oci, "eclipse_temurin_jre_21","eclipse_temurin_jre_21_linux_amd64", "eclipse_temurin_jre_21_linux_arm64_v8")
+oci.pull(
+    name = "alpine",
+    image = "docker.io/library/alpine",
+    tag = "3.21.3",
+    platforms = ["linux/amd64", "linux/arm64/v8"],
+)
+use_repo(oci, "eclipse_temurin_jre_21","eclipse_temurin_jre_21_linux_amd64", "eclipse_temurin_jre_21_linux_arm64_v8", "alpine", "alpine_linux_amd64", "alpine_linux_arm64_v8")
 
 ## Rust
+RUST_EDITION = "2024"
+RUST_VERSION = "1.85.0"
+
 rust = use_extension("@rules_rust//rust:extensions.bzl", "rust")
 rust.toolchain(
-    edition = "2024",
-    versions = [ "1.85.0" ],
+    edition = RUST_EDITION,
+    versions = [RUST_VERSION],
+)
+
+# This overrides a default rust_repository_set created by rust_register_toolchain.
+# It must be named exactly this.
+# Each exec triple needs one of these calls per target triple it supports.
+# The first call needs all of the attrs, the subsequent calls should only set name, target_triple, and target_compatible_with.
+rust.repository_set(
+    name = "rust_linux_x86_64",
+    edition = RUST_EDITION,
+    exec_triple = "x86_64-unknown-linux-gnu",
+    target_compatible_with = [
+        "@//linker_config:unknown",
+        "@platforms//cpu:x86_64",
+        "@platforms//os:linux",
+    ],
+    target_triple = "x86_64-unknown-linux-gnu",
+    versions = [RUST_VERSION],
+)
+rust.repository_set(
+    name = "rust_linux_x86_64",
+    target_compatible_with = [
+        "@//linker_config:musl",
+        "@platforms//cpu:arm64",
+        "@platforms//os:linux",
+    ],
+    target_triple = "aarch64-unknown-linux-musl",
+)
+rust.repository_set(
+    name = "rust_linux_x86_64",
+    target_compatible_with = [
+        "@//linker_config:musl",
+        "@platforms//cpu:x86_64",
+        "@platforms//os:linux",
+    ],
+    target_triple = "x86_64-unknown-linux-musl",
+)
+
+# We don't need to register a repository_set for exec_triple == target_triple if we're not customising it in any way:
+# one will get registered by default.
+# But we do for the Linux case above, because we want to add the "@//linker_config:unknown" constraint in that case.
+rust.repository_set(
+    name = "rust_darwin_x86_64",
+    edition = RUST_EDITION,
+    exec_triple = "x86_64-apple-darwin",
+    target_compatible_with = [
+        "@//linker_config:musl",
+        "@platforms//cpu:x86_64",
+        "@platforms//os:linux",
+    ],
+    target_triple = "x86_64-unknown-linux-musl",
+    versions = [RUST_VERSION],
+)
+rust.repository_set(
+    name = "rust_darwin_x86_64",
+    target_compatible_with = [
+        "@//linker_config:musl",
+        "@platforms//cpu:arm64",
+        "@platforms//os:linux",
+    ],
+    target_triple = "aarch64-unknown-linux-musl",
+)
+rust.repository_set(
+    name = "rust_darwin_aarch64",
+    edition = RUST_EDITION,
+    exec_triple = "aarch64-apple-darwin",
+    target_compatible_with = [
+        "@//linker_config:musl",
+        "@platforms//cpu:x86_64",
+        "@platforms//os:linux",
+    ],
+    target_triple = "x86_64-unknown-linux-musl",
+    versions = [RUST_VERSION],
+)
+rust.repository_set(
+    name = "rust_darwin_aarch64",
+    target_compatible_with = [
+        "@//linker_config:musl",
+        "@platforms//cpu:arm64",
+        "@platforms//os:linux",
+    ],
+    target_triple = "aarch64-unknown-linux-musl",
+)
+use_repo(rust, "rust_toolchains")
+
+register_toolchains("@rust_toolchains//:all")
+
+crate = use_extension("@rules_rust//crate_universe:extensions.bzl", "crate")
+crate.spec(package = "serde", features = ["derive"], version = "1.0.219")
+crate.spec(package = "serde_json", version = "1.0.140")
+crate.from_specs()
+
+use_repo(crate, "crates")
+
+toolchains_musl = use_extension("@toolchains_musl//:toolchains_musl.bzl", "toolchains_musl", dev_dependency = True)
+toolchains_musl.config(
+    extra_target_compatible_with = ["@//linker_config:musl"],
 )
 
 ## Scala
