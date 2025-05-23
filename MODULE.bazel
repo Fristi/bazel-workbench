@@ -155,8 +155,21 @@ maven = use_extension("@rules_jvm_external//:extensions.bzl", "maven")
 
 maven.install(
     artifacts = [
+        "org.http4s:http4s-ember-server_3:0.23.30",
         "dev.zio:zio_3:2.1.18",
-        "dev.zio:zio-test-junit_3:2.1.18"
+        "dev.zio:zio-json_3:0.7.43",
+        "dev.zio:zio-config_3:4.0.4",
+        "dev.zio:zio-config-magnolia_3:4.0.4",
+        "org.tpolecat:natchez-core_3:0.3.8",
+        "org.tpolecat:natchez-noop_3:0.3.8",
+        "dev.zio:zio-streams_3:2.1.18",
+        "dev.zio:zio-interop-cats_3:3.1.1.0",
+        "dev.zio:zio-test-junit_3:2.1.18",
+        "org.tpolecat:skunk-core_3:0.6.4",
+        "com.softwaremill.sttp.tapir:tapir-core_3:1.11.29",
+        "com.softwaremill.sttp.tapir:tapir-http4s-server-zio_3:1.11.29",
+        "com.softwaremill.sttp.tapir:tapir-json-zio_3:1.11.29",
+        "com.softwaremill.sttp.tapir:tapir-swagger-ui-bundle_3:1.11.29"
     ],
     repositories = [
         "https://repo1.maven.org/maven2",

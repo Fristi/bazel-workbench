@@ -9,7 +9,18 @@ scala_binary(
     srcs = glob(["src/main/scala/**/*.scala"]),
     main_class = "vectos.Main",
     deps = [
-        artifact("dev.zio:zio_3")
+        artifact("org.http4s:http4s-ember-server_3:0.23.30"),
+        artifact("dev.zio:zio_3"),
+        artifact("org.tpolecat:skunk-core_3"),
+        artifact("com.softwaremill.sttp.tapir:tapir-http4s-server-zio_3"),
+        artifact("com.softwaremill.sttp.tapir:tapir-json-zio_3"),
+        artifact("com.softwaremill.sttp.tapir:tapir-swagger-ui-bundle_3"),
+        artifact("dev.zio:zio-json_3"),
+        artifact("dev.zio:zio-config_3"),
+        artifact("dev.zio:zio-config-magnolia_3"),
+        artifact("org.tpolecat:natchez-core_3"),
+        artifact("org.tpolecat:natchez-noop_3"),
+        artifact("dev.zio:zio-interop-cats_3"),
     ],
     visibility = ["//visibility:public"]
 )
@@ -18,7 +29,11 @@ scala_binary(
 scala_junit_test(
     name = "test",
     srcs = glob(["src/test/scala/**/*.scala"]),
-    deps = [":api", artifact("dev.zio:zio-test-junit_3")],
+    deps = [
+        ":api",
+        artifact("dev.zio:zio-test-junit_3"),
+        # Add any test-specific dependencies for http/db testing if needed later
+    ],
     suffixes = ["Test", "Spec"],
     visibility = ["//visibility:public"]
 )
